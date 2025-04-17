@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Deepfake Video Analyzer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2em;
+      background-color: #f0f2f5;
+    }
+    h1 {
+      color: #333;
+    }
+    input, button {
+      margin-top: 1em;
+    }
+    video {
+      display: block;
+      margin-top: 1em;
+      max-width: 100%;
+      height: auto;
+    }
+    #deepfakeResult {
+      margin-top: 1em;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Deepfake Video Analyzer</h1>
+  <input type="file" id="deepfakeInput" accept="video/*" />
+  <br>
+  <button onclick="analyzeDeepfake()">Analyze Video</button>
+  <video id="deepfakeVideo" controls></video>
+  <div id="deepfakeResult"></div>
+
+  <script>
+    async function analyzeDeepfake() {
+      const input = document.getElementById('deepfakeInput');
+      const video = document.getElementById('deepfakeVideo');
+      const result = document.getElementById('deepfakeResult');
+      const file = input.files[0];
+
+      if (!file) {
+        result.textContent = '⚠️ Please upload a video.';
+        return;
+      }
+
+      video.src = URL.createObjectURL(file);
+
+      const formData = new FormData();
+      formData.append('video', file);
+
+      result.textContent = '🔍 Analyzing...';
+
+      try {
+        const response = await fetch('http://localhost:3000/analyze', {
+          method: 'POST',
+          body: formData
+        });
+        const text = await response.text();
+        result.textContent = text;
+      } catch (err) {
+        result.textContent = '❌ Error analyzing video.';
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
